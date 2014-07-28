@@ -1,30 +1,6 @@
 Description
 ===========
 
-Binwalk is a fast, easy to use tool for analyzing, reverse engineering, and extracting firmware images.
+CrashPlan is backup software that allows Windows, Mac, Linux and Solaris users to back up their data to an offsite data center, computers belonging to friends and family, as well as to attached drives /shared folders. There is a free version (for personal use only) and CrashPlan+ which is for both personal and business use. Both versions allow users to back up data automatically. Files are encrypted using 448-bit Blowfish encryption for CrashPlan+ and 128-bit encryption for the personal CrashPlan before transmission.
 
-Installation
-============
-
-Binwalk follows the standard Unix configure/make installation procedure:
-
-    $ ./configure
-    $ make
-    $ sudo make install
-
-For convenience, optional dependencies for automatic extraction and graphical visualizations can be installed by running the included `deps.sh` script:
-
-    $ ./deps.sh
-
-If your system is not supported by `deps.sh`, or if you wish to manually install dependencies, see `INSTALL.md`.
-
-For advanced installation options, see `INSTALL.md`.
-
-Usage
-=====
-
-Basic usage is simple:
-
-    $ binwalk firmware.bin
-
-For additional examples and desriptions of advanced options, see the [wiki](https://github.com/devttys0/binwalk/wiki).
+For more information, please see http://forum.qnap.com/viewforum.php?f=227
