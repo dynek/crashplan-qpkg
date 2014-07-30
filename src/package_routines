@@ -1,0 +1,92 @@
+######################################################################
+# Custom definitions
+#
+# Other available definitions are defined in qinstall.sh and qpkg.cfg
+######################################################################
+CMD_TR="/bin/tr"
+######################################################################
+# All package specific functions shall call 'err_log MSG' if an error
+# is detected that shall terminate the installation/upgrade.
+######################################################################
+#
+######################################################################
+# Define any package specific operations that shall be performed when
+# the package is removed.
+######################################################################
+#PKG_PRE_REMOVE="{
+#}"
+#
+#PKG_MAIN_REMOVE="{
+#}"
+#
+PKG_POST_REMOVE="{
+	# Remove symlink
+	$CMD_RM -rf /var/lib/crashplan
+}"
+#
+######################################################################
+# Define any package specific initialization that shall be performed
+# before the package is installed.
+######################################################################
+#pkg_init(){
+#}
+#
+######################################################################
+# Define any package specific requirement checks that shall be
+# performed before the package is installed.
+######################################################################
+pkg_check_requirement(){
+	# Get total available memory
+	MEMMINIMUM=256
+	MEMTOTAL=`$CMD_GREP -i "MemTotal" /proc/meminfo | $CMD_CUT -d' ' -f2- | $CMD_TR -d "[A-Z][a-z] " | $CMD_AWK '{printf("%d\n",($1/1024/256) + 0.5)}'`
+	MEMTOTAL="$(($MEMTOTAL * 256))"
+
+	# If there's less that 256Mb of RAM (half recommended size!) don't install
+	if [ "$MEMTOTAL" -lt "$MEMMINIMUM" ]; then
+		$CMD_ECHO "Not enough memory to run CrashPlan! Minimum required: ${MEMMINIMUM}Mb"
+		exit 1
+	fi
+}
+#
+######################################################################
+# Define any package specific operations that shall be performed when
+# the package is installed.
+######################################################################
+pkg_pre_install(){
+	# Check if package is being upgraded
+	IS_UPGRADE="$($CMD_GETCFG $QPKG_NAME $SYS_QPKG_CONF_FIELD_VERSION -f $SYS_QPKG_CONFIG_FILE)"
+}
+#
+pkg_install(){
+	# Create symlink to not loose identity
+        $CMD_RM -rf /var/lib/crashplan
+        $CMD_LN -sf ${SYS_QPKG_DIR}/var /var/lib/crashplan
+
+	# If package is being installed (not upgraded)
+	if [ -z "$IS_UPGRADE" ]; then
+		# If NAS has only 256Mb of RAM, create config file
+		if [ "$MEMTOTAL" -le "$MEMMINIMUM" ]; then
+			$CMD_ECHO "Config file created with mention of ${MEMMINIMUM}Mb RAM"
+			$CMD_ECHO "memory=$MEMMINIMUM" > ${SYS_QPKG_DIR}/htdocs/config.conf
+		fi
+
+		# Start CrashPlan to generate config files so that on next start IP can be modified
+		$CMD_ECHO "Starting CrashPlan once to generate config files..."
+		${SYS_QPKG_DIR}/crashplan.sh start force
+
+		# AS REQUESTED BY QNAP THEMSELVES - DO NOT TURN OFF SERVICE UPON INSTALLATION
+		# sleep for 5 seconds
+	        #$CMD_SLEEP 5
+		# Stop CrashPlan
+		#${SYS_QPKG_DIR}/crashplan.sh stop
+	fi
+}
+#
+pkg_post_install(){
+	# Check if interface.conf exists (now renamed config.conf and different syntax)
+	if [[ -f $SYS_QPKG_DIR/htdocs/interface.conf ]]; then
+		$CMD_ECHO "interface.conf file exists, creating new config.conf file"
+		$CMD_ECHO "interface=`/bin/cat $SYS_QPKG_DIR/htdocs/interface.conf`" > $SYS_QPKG_DIR/htdocs/config.conf
+		$CMD_RM $SYS_QPKG_DIR/htdocs/interface.conf
+	fi
+}
