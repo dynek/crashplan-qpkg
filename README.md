@@ -20,7 +20,7 @@ Make sure to read the script to understand what it's doing.
 
 `src/x86` contains things related to x86 architecture.
 
-`src/arm-x19` and its symlink `src/arm-x09` contains things related to ... arm architecture, you got it!
+`src/arm-x19` and its symlink `src/arm-x09` contains things related to ... arm architecture, you got it! Note that originally CrashPlan doesn't work on arm arch. This directory is where and how all the magic happens. Libraries might have to be rebuilt someday and I really hope people will do it for me cause I don't feel like creating the toolchain/cross-build environment again.
 
 Finally `src/shared` contains things shared between architectures.
 
