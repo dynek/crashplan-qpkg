@@ -1,27 +1,12 @@
 <?php
-function getMemSlots($memStep) {
-	$memTotal = 1;
-	$meminfo = explode("\n", file_get_contents("/proc/meminfo"));
-	while(list(, $memory) = each($meminfo)) {
-		if (preg_match('/^MemTotal:\s+(\d+)\skB$/', $memory, $pieces)) {
-			$memTotal = round($pieces[1] / 1024 / $memStep, 0);
-			break;
-		}
-	}
-return 1;
-	return $memTotal;
-}
-
 $filename = "./config.conf";
 $memStep = 256;
-$memMinimum = 256;
 $memDefault = 512;
-$memSlots = getMemSlots($memStep);
+$memTotal = max($memStep, round(exec("awk '/^MemTotal:/{print $2}' /proc/meminfo") / 1024, 0));
 $eth0_addr = exec("/sbin/ifconfig eth0 | awk '/addr:/{print $2}' | cut -f2 -d:");
 $eth1_addr = exec("/sbin/ifconfig eth1 | awk '/addr:/{print $2}' | cut -f2 -d:");
 $bond0_addr = exec("/sbin/ifconfig bond0 | awk '/addr:/{print $2}' | cut -f2 -d:");
 $wlan0_addr = exec("/sbin/ifconfig wlan0 | awk '/addr:/{print $2}' | cut -f2 -d:");
-
 // Save posted data
 $config = array();
 if(isset($_POST['posted'])) {
@@ -47,54 +32,7 @@ if(isset($_POST['posted'])) {
 <title>CrashPlan Administration</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <link rel="icon" type="image/png" href="images/favicon.png" />
-<style>
-	body {
-		background-color: #598D1C;
-		color: #FFFFFF;
-		font-family: Arial;
-		font-size: 8pt;
-	}
-	a {
-		color: #FFFFFF;
-		text-decoration: none;
-	}
-	div#main {
-		width: 530px;
-		height: 321px;
-		background-image:url('images/main.jpg');
-		margin-left: auto;
-                margin-right: auto;
-		margin-top: 100px;
-		border: 1px solid #094713;
-	}
-	img {
-                border: 0;
-                vertical-align: middle;
-                margin-right: 5px;
-	}
-	select {
-		margin-left: 2px;
-	}
-	div#top {
-                padding-top: 18px;
-                padding-left: 160px;
-        }
-	div.topSpace {
-		padding-top: 9px;
-	}
-	div#bottomLeft {
-		margin-top: 200px;
-		padding-left: 10px;
-		width: 330px;
-		float: left;
-        }
-	div#bottomRight {
-		margin-top: 200px;
-		margin-left: 10px;
-		width: 180px;
-		float: left;
-	}
-</style>
+<link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
 	<div id="main">
@@ -129,12 +67,10 @@ if(isset($_POST['posted'])) {
 					CrashPlan's Java memory allocation
 					<select name="memory">
 						<?php
-						for($x = 1; $x <= $memSlots; $x++) {
-							if($x * $memStep >= $memMinimum) {
+						for($m = $memStep; $m <= $memTotal; $m += $memStep) {
 						?>
-								<option value="<?php echo ($x * $memStep); ?>"<?php if(isset($config['memory']) && $config['memory'] == ($x * $memStep)) { echo " SELECTED"; } ?>><?php echo ($x * $memStep) ?> Mb<?php if($x * $memStep == $memDefault) { echo " (default)"; } ?></option>
+							<option value="<?php echo ($m); ?>"<?php if(isset($config['memory']) && $config['memory'] == $m) { echo " selected"; } ?>><?php echo ($m) ?> Mb<?php if($m == $memDefault) { echo " (default)"; } ?></option>
 						<?php
-							}
 						}
 						?>
 					</select>
