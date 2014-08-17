@@ -46,15 +46,13 @@ $CMD_MV ../shared/libjtux.so ../x86/
 $CMD_MV ../shared/libmd5.so ../x86/
 $CMD_MV -f ../shared/lib/jna-*.jar ../x86/lib/
 
-$CMD_CP ./crashplan.sh ../shared/
+$CMD_CP -r ./qpkg/* ../shared/
+
 $CMD_CHMOD +x ../shared/crashplan.sh
 $CMD_MKDIR -p ../shared/bin
 $CMD_MKDIR -p ../shared/tmp
-$CMD_CP ./restartLinux.sh ../shared/bin/
 $CMD_CHMOD +x ../shared/bin/restartLinux.sh
 $CMD_CHOWN -R admin:administrators ../shared
-
-$CMD_CP -r ./htdocs ../shared/
 $CMD_CHOWN -R httpdusr:administrators ../shared/htdocs
 $CMD_CHMOD -R u+rw,g-rwx,o-rwx ../shared/htdocs
 $CMD_CHMOD u+x ../shared/htdocs
