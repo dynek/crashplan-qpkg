@@ -24,7 +24,6 @@ PATH_TO_JAVA=`which java`
 echo "JAVACOMMON=$PATH_TO_JAVA" > ./data/crashplan.vars
 $CMD_GREP "SRV_JAVA_OPTS" ./data/CrashPlan-install/scripts/run.conf >> ./data/crashplan.vars
 
-$CMD_RM ./data/CrashPlan-install/scripts/CrashPlanEngine
 $CMD_RM -rf ./data/CrashPlan-install
 $CMD_RM -f ./data/CrashPlan.cpi
 $CMD_MKDIR ./data/var
