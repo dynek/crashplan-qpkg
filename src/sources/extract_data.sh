@@ -43,7 +43,13 @@ $CMD_RM -rf ./data
 $CMD_MKDIR -p ../x86/lib
 $CMD_MV ../shared/libjtux.so ../x86/
 $CMD_MV ../shared/libmd5.so ../x86/
-$CMD_MV -f ../shared/lib/jna-*.jar ../x86/lib/
+$CMD_CP ../shared/lib/jna-*.jar ../x86/lib/
+
+$CMD_MKDIR -p ../x86_64/lib
+$CMD_MV ../shared/libjniwrap64.so ../x86_64/
+$CMD_MV ../shared/libjtux64.so ../x86_64/
+$CMD_MV ../shared/libmd564.so ../x86_64/
+$CMD_MV -f ../shared/lib/jna-*.jar ../x86_64/lib/
 
 $CMD_CP -r ./qpkg/* ../shared/
 
