@@ -31,9 +31,6 @@ $CMD_RM -rf ./data/bin
 $CMD_RM -rf ./data/upgrade
 $CMD_RM -rf ./data/doc
 $CMD_RM -rf ./data/skin
-$CMD_RM -f ./data/libjniwrap64.so
-$CMD_RM -f ./data/libjtux64.so
-$CMD_RM -f ./data/libmd564.so
 
 $CMD_RM -rf ../shared
 $CMD_MKDIR ../shared
