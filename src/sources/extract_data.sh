@@ -58,3 +58,5 @@ $CMD_CHOWN -R admin:administrators ../shared
 $CMD_CHOWN -R httpdusr:administrators ../shared/htdocs
 $CMD_CHMOD -R u+rw,g-rwx,o-rwx ../shared/htdocs
 $CMD_CHMOD u+x ../shared/htdocs
+
+echo "[*] done generating QPKG sources"
