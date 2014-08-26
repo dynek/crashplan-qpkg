@@ -12,6 +12,8 @@ CMD_CHOWN="/bin/chown"
 CMD_CP="/bin/cp"
 CMD_WHICH="/usr/bin/which"
 CMD_GREP="/bin/grep"
+CMD_FIND="/usr/bin/find"
+CMD_XARGS="/usr/bin/xargs"
 
 DIR_SRC=./src
 DIR_SRC_QPKG=$DIR_SRC/qpkg
@@ -51,6 +53,7 @@ $CMD_RM -rf $DIR_DATA/skin
 
 # Move all to shared
 $CMD_MV $DIR_DATA/* $DIR_SHARED
+$CMD_FIND $DIR_SHARED -name .gitignore | $CMD_XARGS $CMD_RM
 
 # x86 libraries
 $CMD_MV $DIR_SHARED/libjtux.so $DIR_X86
