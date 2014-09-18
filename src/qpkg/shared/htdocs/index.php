@@ -2,7 +2,7 @@
 $filename = "./config.conf";
 $memStep = 256;
 $memDefault = 512;
-$memTotal = max($memStep, round(exec("awk '/^MemTotal:/{print $2}' /proc/meminfo") / 1024, 0));
+$memTotal = ceil(round(exec("awk '/^MemTotal:/{print $2}' /proc/meminfo") / 1024, 0) / $memStep) * $memStep;
 $eth0_addr = exec("/sbin/ifconfig eth0 | awk '/addr:/{print $2}' | cut -f2 -d:");
 $eth1_addr = exec("/sbin/ifconfig eth1 | awk '/addr:/{print $2}' | cut -f2 -d:");
 $bond0_addr = exec("/sbin/ifconfig bond0 | awk '/addr:/{print $2}' | cut -f2 -d:");
