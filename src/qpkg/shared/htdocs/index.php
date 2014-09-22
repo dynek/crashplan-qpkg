@@ -3,7 +3,7 @@ $filename = "./config.conf";
 $memStep = 256;
 $memDefault = 512;
 $memTotal = ceil(round(exec("awk '/^MemTotal:/{print $2}' /proc/meminfo") / 1024, 0) / $memStep) * $memStep;
-exec("for interface in \$(ifconfig -a | grep -i hwaddr | awk '{ print \$1 }'); do echo -n \"\${interface};\"; ifconfig \$interface | awk '/addr:/{print \$2}' | cut -f2 -d:; done", $if_addr);
+exec("for interface in \$(/sbin/ifconfig -a | grep -i hwaddr | awk '{ print \$1 }'); do echo -n \"\${interface};\"; /sbin/ifconfig \$interface | awk '/addr:/{print \$2}' | cut -f2 -d:; done", $if_addr);
 // Save posted data
 $config = array();
 if(isset($_POST['posted'])) {
