@@ -7,7 +7,7 @@ This it the sources to create a QPKG installable on a QNAP device (x86/arm based
 
 Building QPKG
 =============
-Script `build.sh` can used to build the QPKG.
+Script `build.sh` can be used to build the QPKG.
 The script is pretty ugly and uncommented, feel free to improve!
 It only takes one parameter which is the _Linux.tgz file fetched from CrashPlan directly.
 Make sure to read the script to understand what it's doing.
