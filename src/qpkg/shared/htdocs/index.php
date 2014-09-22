@@ -3,10 +3,7 @@ $filename = "./config.conf";
 $memStep = 256;
 $memDefault = 512;
 $memTotal = ceil(round(exec("awk '/^MemTotal:/{print $2}' /proc/meminfo") / 1024, 0) / $memStep) * $memStep;
-$eth0_addr = exec("/sbin/ifconfig eth0 | awk '/addr:/{print $2}' | cut -f2 -d:");
-$eth1_addr = exec("/sbin/ifconfig eth1 | awk '/addr:/{print $2}' | cut -f2 -d:");
-$bond0_addr = exec("/sbin/ifconfig bond0 | awk '/addr:/{print $2}' | cut -f2 -d:");
-$wlan0_addr = exec("/sbin/ifconfig wlan0 | awk '/addr:/{print $2}' | cut -f2 -d:");
+exec("for interface in \$(ifconfig -a | grep -i hwaddr | awk '{ print \$1 }'); do echo -n \"\${interface};\"; ifconfig \$interface | awk '/addr:/{print \$2}' | cut -f2 -d:; done", $if_addr);
 // Save posted data
 $config = array();
 if(isset($_POST['posted'])) {
@@ -48,18 +45,14 @@ if(isset($_POST['posted'])) {
 				<img src="images/<?php if(!isset($config['interface'])) { echo "warning.gif"; } else { echo "success.gif";  } ?>"<?php if(!isset($config['interface'])) { echo " title=\"Listening IP not yet set!\""; } ?> />
 				IP CrashPlan will be listening on:
 				<select name="interface">
-					<?php if($eth0_addr) { ?>
-						<option value="eth0"<?php if(isset($config['interface']) && $config['interface']=="eth0") { echo " SELECTED"; }?>><?php echo $eth0_addr; ?></option>
-					<?php } ?>
-					<?php if($eth1_addr) { ?>
-						<option value="eth1"<?php if(isset($config['interface']) && $config['interface']=="eth1") { echo " SELECTED"; }?>><?php echo $eth1_addr; ?></option>
-					<?php } ?>
-					<?php if($bond0_addr) { ?>
-						<option value="bond0"<?php if(isset($config['interface']) && $config['interface']=="bond0") { echo " SELECTED"; }?>><?php echo $bond0_addr; ?></option>
-                                	<?php } ?>
-					<?php if($wlan0_addr) { ?>
-						<option value="wlan0"<?php if(isset($config['interface']) && $config['interface']=="wlan0") { echo " SELECTED"; }?>><?php echo $wlan0_addr; ?></option>
-                                	<?php } ?>
+					<?php foreach($if_addr as $tmp) {
+						$tmp=explode(';', $tmp);
+						if($tmp[1]) {
+					?>
+							<option value="<?php echo $tmp[0] ?>"<?php if(isset($config['interface']) && $config['interface']=="$tmp[0]") { echo " SELECTED"; }?>><?php echo $tmp[1]; ?></option>
+                                	<?php 	}
+					}
+					?>
 				</select>
 
 				<div class="topSpace">
