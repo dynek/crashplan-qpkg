@@ -22,7 +22,7 @@ find_base()
 
         # Determine BASE installation location by checking where the Public folder is.
         if [ -z $QPKG_BASE ]; then
-                for datadirtest in /share/HDA_DATA /share/HDB_DATA /share/HDC_DATA /share/HDD_DATA /share/HDE_DATA /share/HDF_DATA /share/HDG_DATA /share/HDH_DATA /share/MD0_DATA /share/MD1_DATA /share/MD2_DATA /share/MD3_DATA /share/CACHEDEV1_DATA; do
+                for datadirtest in /share/HDA_DATA /share/HDB_DATA /share/HDC_DATA /share/HDD_DATA /share/HDE_DATA /share/HDF_DATA /share/HDG_DATA /share/HDH_DATA /share/MD0_DATA /share/MD1_DATA /share/MD2_DATA /share/MD3_DATA /share/CACHEDEV1_DATA /share/CE_CACHEDEV1_DATA; do
                         [ -d $datadirtest/Public ] && QPKG_BASE="$datadirtest"
                 done
         fi
@@ -153,8 +153,7 @@ case "$1" in
 		QPKG_JAVA_OPTS="-Duser.timezone=${TIMEZONE}"
 		FULL_CP="$QPKG_DIR/lib/com.backup42.desktop.jar:$QPKG_DIR/lang"
 		# If device is ARM
-		#if [ `uname -m` = "armv5tel" ]; then
-		if [[ `uname -m` == armv5* ]]; then
+		if [[ `uname -m` == armv[5-7]* ]]; then
 			FULL_CP="$QPKG_DIR/lib/jna-3.2.7.jar:${FULL_CP}"
 			export LD_LIBRARY_PATH=$QPKG_DIR/lib
 		fi
