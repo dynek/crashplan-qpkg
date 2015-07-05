@@ -3,6 +3,15 @@
 $filename = "./config.conf";
 $memStep = 256;
 $memDefault = 512;
+$ui_info_file = "/var/lib/crashplan/.ui_info";
+$ui_id = "None - Starting CrashPlan once first is needed";
+
+// fetch ui id
+if(file_exists($ui_info_file)) {
+    $handle = fopen($ui_info_file, 'r');
+    $ui_id = fgets($handle);
+    fclose($handle);
+}
 
 // find memory available on device
 $memTotal = ceil(round(exec("awk '/^MemTotal:/{print $2}' /proc/meminfo") / 1024, 0) / $memStep) * $memStep;
@@ -60,14 +69,19 @@ if(!isset($config['interface']) || (isset($config['interface']) && !array_key_ex
 
             <form method="post">
                 <div id="bottomLeft">
-                    <img src="images/<?php if(!$ip_configured) { echo "warning.gif"; } else { echo "success.gif";  } ?>"<?php if(!$ip_configured) { echo " title=\"Listening IP not yet set!\""; } ?> />
-                    IP CrashPlan will be listening on:
-                    <select name="interface">
-                        <?php if(!$ip_configured) { ?><option value="" SELECTED>-</option><?php } ?>
-                        <?php foreach($net_ifaces as $iface => $ip) { ?>
-                        <option value="<?php echo $iface ?>"<?php if(isset($config['interface']) && $config['interface']=="$iface") { echo " SELECTED"; }?>><?php echo $ip; ?></option>
-                        <?php } ?>
-                    </select>
+                    <img src="images/id.gif" />
+                    ID: <?php echo $ui_id; ?>
+
+                    <div class="topSpace">
+                        <img src="images/<?php if(!$ip_configured) { echo "warning.gif"; } else { echo "success.gif";  } ?>"<?php if(!$ip_configured) { echo " title=\"Listening IP not yet set!\""; } ?> />
+                        IP CrashPlan will be listening on:
+                        <select name="interface">
+                            <?php if(!$ip_configured) { ?><option value="" SELECTED>-</option><?php } ?>
+                            <?php foreach($net_ifaces as $iface => $ip) { ?>
+                            <option value="<?php echo $iface ?>"<?php if(isset($config['interface']) && $config['interface']=="$iface") { echo " SELECTED"; }?>><?php echo $ip; ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
 
                     <div class="topSpace">
                         <img src="images/ram.gif" />
