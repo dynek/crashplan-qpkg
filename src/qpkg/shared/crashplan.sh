@@ -119,6 +119,7 @@ case "$1" in
 			fi
 
 			# Set memory information
+			SRV_JAVA_OPTS=`/bin/echo $SRV_JAVA_OPTS | /bin/sed -e "s/-Xms20m/-Xms${SYS_MEMORY}m/"`
 			SRV_JAVA_OPTS=`/bin/echo $SRV_JAVA_OPTS | /bin/sed -e "s/-Xmx1024m/-Xmx${SYS_MEMORY}m/"`
 
 			# Config IP from interface
