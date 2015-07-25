@@ -139,6 +139,7 @@ case "$1" in
 		# Symlink identity and increment max_user_watches
 		/bin/rm -rf /var/lib/crashplan
 		/bin/ln -sf $QPKG_DIR/var /var/lib/crashplan
+		/bin/chmod o+r $QPKG_DIR/var
 		/bin/echo 1048576 > /proc/sys/fs/inotify/max_user_watches
 
 		if [[ ${LC_ALL} ]]; then
