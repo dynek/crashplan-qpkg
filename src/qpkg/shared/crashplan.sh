@@ -99,7 +99,7 @@ case "$1" in
 
 			# If no interface has been found
 			if [[ -z "$SYS_INTERFACE" ]]; then
-				SYS_INTERFACE="$(for iface in $(find /sys/class/net/ -type l ! -iname "lo" -printf '%f\n'); do if ifconfig $iface | grep -i inet >/dev/null 2>&1; then echo $iface; fi; done)"
+				SYS_INTERFACE="$(for iface in $(find /sys/class/net/ -type l | xargs -I% basename % | grep -iv "lo"); do if ifconfig $iface | grep -i inet >/dev/null 2>&1; then echo $iface; fi; done)"
 			fi
 			if [[ -z "$SYS_INTERFACE" ]]; then
 				/bin/echo "Can't find any interface on which to listen!"
