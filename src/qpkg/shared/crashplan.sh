@@ -99,18 +99,12 @@ case "$1" in
 
 			# If no interface has been found
 			if [[ -z "$SYS_INTERFACE" ]]; then
-				if [ "`/sbin/ifconfig -a | /bin/grep bond0`" ]; then
-					SYS_INTERFACE="bond0"
-				elif [ "`/sbin/ifconfig -a | /bin/grep eth0`" ]; then
-					SYS_INTERFACE="eth0"
-				elif [ "`/sbin/ifconfig -a | /bin/grep eth1`" ]; then
-					SYS_INTERFACE="eth1"
-				elif [ "`/sbin/ifconfig -a | /bin/grep wlan0`" ]; then
-					SYS_INTERFACE="wlan0"
-				else
-					/bin/echo "Can't find any interface on which to listen!"
-					exit 1
-				fi
+				SYS_INTERFACE="$(for iface in $(find /sys/class/net/ -type l ! -iname "lo" -printf '%f\n'); do if ifconfig $iface | grep -i inet >/dev/null 2>&1; then echo $iface; fi; done)"
+			fi
+			if [[ -z "$SYS_INTERFACE" ]]; then
+				/bin/echo "Can't find any interface on which to listen!"
+				exit 1
+
 			fi
 
 			# If no memory information has been found in config file
@@ -125,7 +119,7 @@ case "$1" in
 			# Config IP from interface
 			SYS_IP=`/sbin/ifconfig $SYS_INTERFACE | /bin/awk '/addr:/{print $2}' | /bin/cut -f2 -d:`
 			/bin/echo "Using interface: ${SYS_INTERFACE} (${SYS_IP}) - This can be changed in the web interface!"
-			/bin/sed -ri "s/<serviceHost(\s+\/)?>.*/<serviceHost>${SYS_IP}<\/serviceHost>/" $QPKG_DIR/conf/my.service.xml
+			/bin/sed -ri "s/<serviceHost(\s*\/)?>.*/<serviceHost>${SYS_IP}<\/serviceHost>/" $QPKG_DIR/conf/my.service.xml
 
 			# Configure port on which service will listen for remote backups
 			REMOTE_PORT=`/bin/grep "<location>.*</location>" $QPKG_DIR/conf/my.service.xml | /bin/cut -f2 -d: | /bin/cut -f1 -d'<'`
