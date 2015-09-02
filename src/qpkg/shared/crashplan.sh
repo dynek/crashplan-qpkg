@@ -92,20 +92,32 @@ case "$1" in
 			# Configure interface and port on which service will listen and memory size allocated
 			if [[ -f $QPKG_DIR/htdocs/config.conf ]]; then
 				SYS_INTERFACE=`/bin/cat $QPKG_DIR/htdocs/config.conf | /bin/grep interface | /bin/cut -f2 -d=`
+				if [[ -n "$SYS_INTERFACE" ]]; then /bin/echo -n "Using network interface defined in ${QPKG_DIR}/htdocs/config.conf: ${SYS_INTERFACE}"; fi
 				SYS_MEMORY=`/bin/cat $QPKG_DIR/htdocs/config.conf | /bin/grep memory | /bin/cut -f2 -d=`
-			else
-				SYS_INTERFACE=$(/sbin/getcfg Network "Default GW Device" -f $NASCFGFILE)
 			fi
 
-			# If no interface has been found
+			# Discovery of interface to use 1/2
 			if [[ -z "$SYS_INTERFACE" ]]; then
-				SYS_INTERFACE="$(for iface in $(find /sys/class/net/ -type l | xargs -I% basename % | grep -iv "lo"); do if ifconfig $iface | grep -i inet >/dev/null 2>&1; then echo $iface; fi; done)"
+				SYS_INTERFACE=$(/sbin/getcfg Network "Default GW Device" -f $NASCFGFILE)
+				if [[ -n "$SYS_INTERFACE" ]]; then /bin/echo -n "Using network interface defined as default gateway in NAS configuration: ${SYS_INTERFACE}"; fi
 			fi
+
+			# Discovery of interface to use 2/2
+			if [[ -z "$SYS_INTERFACE" ]]; then
+				SYS_INTERFACE="$(for iface in $(find /sys/class/net/ -type l | grep -iv "/lo"); do iface=$(/usr/bin/basename $iface); if ifconfig $iface | grep -i inet >/dev/null 2>&1; then echo $iface; fi; done)"
+				if [[ -n "$SYS_INTERFACE" ]]; then /bin/echo -n "Using network interface self-discovered: ${SYS_INTERFACE}"; fi
+			fi
+
+			# Failure
 			if [[ -z "$SYS_INTERFACE" ]]; then
 				/bin/echo "Can't find any interface on which to listen!"
 				exit 1
-
 			fi
+
+			# Config IP from interface
+			SYS_IP=`/sbin/ifconfig $SYS_INTERFACE | /bin/awk '/addr:/{print $2}' | /bin/cut -f2 -d:`
+			/bin/echo " (${SYS_IP}) - This can be changed in the web interface"
+			/bin/sed -ri "s/<serviceHost(\s*\/)?>.*/<serviceHost>${SYS_IP}<\/serviceHost>/" $QPKG_DIR/conf/my.service.xml
 
 			# If no memory information has been found in config file
 			if [[ -z "$SYS_MEMORY" ]]; then
@@ -115,11 +127,6 @@ case "$1" in
 			# Set memory information
 			SRV_JAVA_OPTS=`/bin/echo $SRV_JAVA_OPTS | /bin/sed -e "s/-Xms20m/-Xms${SYS_MEMORY}m/"`
 			SRV_JAVA_OPTS=`/bin/echo $SRV_JAVA_OPTS | /bin/sed -e "s/-Xmx1024m/-Xmx${SYS_MEMORY}m/"`
-
-			# Config IP from interface
-			SYS_IP=`/sbin/ifconfig $SYS_INTERFACE | /bin/awk '/addr:/{print $2}' | /bin/cut -f2 -d:`
-			/bin/echo "Using interface: ${SYS_INTERFACE} (${SYS_IP}) - This can be changed in the web interface!"
-			/bin/sed -ri "s/<serviceHost(\s*\/)?>.*/<serviceHost>${SYS_IP}<\/serviceHost>/" $QPKG_DIR/conf/my.service.xml
 
 			# Configure port on which service will listen for remote backups
 			REMOTE_PORT=`/bin/grep "<location>.*</location>" $QPKG_DIR/conf/my.service.xml | /bin/cut -f2 -d: | /bin/cut -f1 -d'<'`
