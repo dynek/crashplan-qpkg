@@ -18,7 +18,7 @@ $memTotal = ceil(round(exec("awk '/^MemTotal:/{print $2}' /proc/meminfo") / 1024
 
 // find network interfaces available on device
 $net_ifaces = array();
-exec("for interface in \$(/sbin/ifconfig -a | grep -i hwaddr | awk '{ print \$1 }'); do echo -n \"\${interface};\"; /sbin/ifconfig \$interface | awk '/addr:/{print \$2}' | cut -f2 -d:; done", $call_output);
+exec("for interface in \$(/sbin/ifconfig -a | grep -i hwaddr | awk '{ print \$1 }'); do printf \"\n\${interface};\"; /sbin/ifconfig \$interface | awk '/addr:/{print \$2}' | cut -f2 -d:; done", $call_output);
 // create an array from that for next operations (even though most people will only have a single interface w/ an ip addr defined)
 foreach($call_output as $tmp) {
     list($iface, $ip) = explode(';', $tmp);
