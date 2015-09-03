@@ -2,44 +2,15 @@
 
 QPKG_NAME="CrashPlan"
 QPKG_BASE=""
-QPKG_DIR=""
-CONF=/etc/config/qpkg.conf
+CONFFILE=/etc/config/qpkg.conf
+QPKG_DIR="$(/sbin/getcfg "${QPKG_NAME}" Install_Path -f ${CONFFILE})"
 WEB_SHARE=`/sbin/getcfg SHARE_DEF defWeb -d Qweb -f /etc/config/def_share.info`
 NASCFGFILE="/mnt/HDA_ROOT/.config/uLinux.conf"
-
-find_base()
-{
-        # Determine BASE installation location according to smb.conf
-        publicdir=`/sbin/getcfg Public path -f /etc/config/smb.conf`
-        if [ ! -z $publicdir ] && [ -d $publicdir ];then
-                publicdirp1=`/bin/echo $publicdir | /bin/cut -d "/" -f 2`
-                publicdirp2=`/bin/echo $publicdir | /bin/cut -d "/" -f 3`
-                publicdirp3=`/bin/echo $publicdir | /bin/cut -d "/" -f 4`
-                if [ ! -z $publicdirp1 ] && [ ! -z $publicdirp2 ] && [ ! -z $publicdirp3 ]; then
-                        [ -d "/${publicdirp1}/${publicdirp2}/Public" ] && QPKG_BASE="/${publicdirp1}/${publicdirp2}"
-                fi
-        fi
-
-        # Determine BASE installation location by checking where the Public folder is.
-        if [ -z $QPKG_BASE ]; then
-                for datadirtest in /share/HDA_DATA /share/HDB_DATA /share/HDC_DATA /share/HDD_DATA /share/HDE_DATA /share/HDF_DATA /share/HDG_DATA /share/HDH_DATA /share/MD0_DATA /share/MD1_DATA /share/MD2_DATA /share/MD3_DATA /share/CACHEDEV1_DATA /share/CE_CACHEDEV1_DATA; do
-                        [ -d $datadirtest/Public ] && QPKG_BASE="$datadirtest"
-                done
-        fi
-        if [ -z $QPKG_BASE ] ; then
-                /bin/echo "The Public share not found."
-                exit 1
-        fi
-        QPKG_DIR="${QPKG_BASE}/.qpkg/${QPKG_NAME}"
-}
-
-find_base
-
-PIDFILE="$QPKG_DIR/${QPKG_NAME}.pid"
+PIDFILE="${QPKG_DIR}/${QPKG_NAME}.pid"
 
 case "$1" in
 	start)
-		ENABLED=$(/sbin/getcfg $QPKG_NAME Enable -u -d FALSE -f $CONF)
+		ENABLED=$(/sbin/getcfg "${QPKG_NAME}" Enable -u -d FALSE -f "${CONFFILE}")
 		if [ "$ENABLED" != "TRUE" ]; then
 			/bin/echo "$QPKG_NAME is disabled."
 			if [ "$2" != "force" ]; then
