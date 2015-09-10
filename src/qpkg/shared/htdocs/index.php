@@ -3,6 +3,7 @@
 $filename = "./config.conf";
 $memStep = 256;
 $memDefault = 512;
+$memMax = 3584; // 32-bit JRE limit
 $ui_info_file = "/var/lib/crashplan/.ui_info";
 $ui_id = "None - Starting CrashPlan once first is needed";
 
@@ -15,6 +16,7 @@ if(file_exists($ui_info_file)) {
 
 // find memory available on device
 $memTotal = ceil(round(exec("awk '/^MemTotal:/{print $2}' /proc/meminfo") / 1024, 0) / $memStep) * $memStep;
+if($memTotal > $memMax) $memTotal = $memMax;
 
 // find network interfaces available on device
 $net_ifaces = array();
