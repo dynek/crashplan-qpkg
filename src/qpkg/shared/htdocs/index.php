@@ -6,6 +6,13 @@ $memDefault = 512;
 $memMax = 3584; // 32-bit JRE limit
 $ui_info_file = "/var/lib/crashplan/.ui_info";
 $ui_id = "None - Starting CrashPlan once first is needed";
+$app_log_file = "../log/app.log";
+$cp_version = "Could not find it";
+
+if(file_exists($app_log_file)) {
+    exec("/bin/grep -i CPVERSION $app_log_file | awk '/CPVERSION/{print $3}'", $temp);
+    $cp_version = $temp[0];
+}
 
 // fetch ui id
 if(file_exists($ui_info_file)) {
@@ -72,8 +79,13 @@ if(!isset($config['interface']) || (isset($config['interface']) && !array_key_ex
 
             <form method="post">
                 <div id="bottomLeft">
-                    <img src="images/id.gif" />
-                    ID: <?php echo $ui_id; ?>
+		    <img src="images/id.gif" />
+                    Version: <?php echo $cp_version; ?>
+
+                    <div class="topSpace">
+                        <img src="images/id.gif" />
+                        ID: <?php echo $ui_id; ?>
+		    </div>
 
                     <div class="topSpace">
                         <img src="images/<?php if(!$ip_configured) { echo "warning.gif"; } else { echo "success.gif";  } ?>"<?php if(!$ip_configured) { echo " title=\"Listening IP not yet set!\""; } ?> />
