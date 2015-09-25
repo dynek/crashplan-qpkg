@@ -34,17 +34,17 @@ $CMD_CP -r $DIR_SRC_QPKG/* $DIR_QPKG
 
 # Extract Crashplan package
 $CMD_TAR xzf $1 -C $DIR_DATA
-CPIFILE_NAME=`$CMD_LS -1 $DIR_DATA/CrashPlan-install/*cpi`
+CPIFILE_NAME=`$CMD_LS -1 $DIR_DATA/crashplan-install/*cpi`
 $CMD_MV $CPIFILE_NAME $DIR_DATA/CrashPlan.cpi
 cd $DIR_DATA && $CMD_CAT ./CrashPlan.cpi | gzip -dc - | cpio -i --no-preserve-owner && cd -
 
 # Create crashplan.cars file
 PATH_TO_JAVA=`which java`
 echo "JAVACOMMON=$PATH_TO_JAVA" > $DIR_DATA/crashplan.vars
-$CMD_GREP "SRV_JAVA_OPTS" $DIR_DATA/CrashPlan-install/scripts/run.conf >> $DIR_DATA/crashplan.vars
+$CMD_GREP "SRV_JAVA_OPTS" $DIR_DATA/crashplan-install/scripts/run.conf >> $DIR_DATA/crashplan.vars
 
 # Clean data folder
-$CMD_RM -rf $DIR_DATA/CrashPlan-install
+$CMD_RM -rf $DIR_DATA/crashplan-install
 $CMD_RM -f $DIR_DATA/CrashPlan.cpi
 $CMD_RM -rf $DIR_DATA/bin
 $CMD_RM -rf $DIR_DATA/upgrade

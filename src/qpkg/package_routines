@@ -79,6 +79,11 @@ pkg_install(){
         #$CMD_SLEEP 5
         # Stop CrashPlan
         #${SYS_QPKG_DIR}/crashplan.sh stop
+    else
+        # upon upgrade clear upgrade values in CrashPlan conf
+	if [[ -f "${SYS_QPKG_DIR}/conf/my.service.xml" ]]; then
+	    /bin/sed -i '/upgradeVersion/d;/upgradePath/d;/upgradeDelay/d' "${SYS_QPKG_DIR}/conf/my.service.xml"
+	fi
     fi
 }
 #
