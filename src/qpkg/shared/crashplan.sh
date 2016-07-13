@@ -14,6 +14,13 @@ HTDOCS_DIR="${QPKG_DIR}/htdocs"
 HTDOCS_CFG_FILE="${HTDOCS_DIR}/config.conf"
 BACKUP_ARCH_DIR="${QPKG_DIR}/backupArchives"
 
+# TEMPORARY: workaround for >= 4.5 >>>>>>>>>>>>>>>>>>>>
+JRE_QPKG_DIR="$(/sbin/getcfg "JRE" Install_Path -f ${QPKG_CFG_FILE})"
+if [[ "$(uname -m)" == armv[5-7]* ]]; then
+  JRE_QPKG_DIR="$(/sbin/getcfg "JRE_ARM" Install_Path -f ${QPKG_CFG_FILE})"
+fi
+# TEMPORARY: workaround for >= 4.5 <<<<<<<<<<<<<<<<<<<<
+
 case "$1" in
     "start")
       ENABLED="$(/sbin/getcfg "${QPKG_NAME}" Enable -u -d FALSE -f "${QPKG_CFG_FILE}")"
@@ -161,8 +168,22 @@ case "$1" in
       # Set JAVA tmp directory
       TMP_JAVA_OPTS="-Djava.io.tmpdir=${QPKG_DIR}/tmp"
 
+      # TEMPORARY: workaround for >= 4.5 >>>>>>>>>>>>>>>>>>>>
+      if [[ -f "${JRE_QPKG_DIR}/jre/bin/java" ]]; then
+        [[ -f "${JRE_QPKG_DIR}/jre/bin/java.patched" ]] && /bin/rm -f "${JRE_QPKG_DIR}/jre/bin/java.patched"
+        [[ -d "/tmp/glibc-2.19" ]] && /bin/rm -rf "/tmp/glibc-2.19"
+        if [[ "$(uname -m)" == armv[5-7]* ]] && [[ ! -f "${QPKG_DIR}/workaround/glibc-2.19/lib/libgcc_s.so.1" ]]; then /bin/cp /lib/libgcc_s.so.1 "${QPKG_DIR}/workaround/glibc-2.19/lib/"; fi
+        /bin/cp "${QPKG_DIR}/workaround/java.patched" "${JRE_QPKG_DIR}/jre/bin/java.patched"
+        /bin/ln -s "${QPKG_DIR}/workaround/glibc-2.19" /tmp/
+	echo "[TEMPORARY] successfully applied workaround for CrashPlan >= 4.5"
+      fi
+      # TEMPORARY: workaround for >= 4.5 <<<<<<<<<<<<<<<<<<<<
+
       cd "${QPKG_DIR}"
-      ${JAVACOMMON} ${SRV_JAVA_OPTS} ${QPKG_JAVA_OPTS} ${TMP_JAVA_OPTS} -classpath ${FULL_CP} com.backup42.service.CPService >"${QPKG_DIR}/log/engine_output.log" 2>"${QPKG_DIR}/log/engine_error.log" &
+      # TEMPORARY: workaround for >= 4.5 >>>>>>>>>>>>>>>>>>>>
+      #${JAVACOMMON} ${SRV_JAVA_OPTS} ${QPKG_JAVA_OPTS} ${TMP_JAVA_OPTS} -classpath ${FULL_CP} com.backup42.service.CPService >"${QPKG_DIR}/log/engine_output.log" 2>"${QPKG_DIR}/log/engine_error.log" &
+      /usr/local/jre/bin/java.patched ${SRV_JAVA_OPTS} ${QPKG_JAVA_OPTS} ${TMP_JAVA_OPTS} -classpath ${FULL_CP} com.backup42.service.CPService >"${QPKG_DIR}/log/engine_output.log" 2>"${QPKG_DIR}/log/engine_error.log" &
+      # TEMPORARY: workaround for >= 4.5 <<<<<<<<<<<<<<<<<<<<
       if [[ $! -gt 0 ]]; then
         /bin/echo $! > "${PID_FILE}"
 
