@@ -22,7 +22,7 @@ DIR_QPKG=$DIR_TARGET/qpkg
 DIR_DATA=$DIR_TARGET/data
 DIR_SHARED=$DIR_QPKG/shared
 DIR_X86=$DIR_QPKG/x86
-DIR_X86_64=$DIR_QPKG/x86_64
+#DIR_X86_64=$DIR_QPKG/x86_64
 
 # Create target folders
 $CMD_RM -rf $DIR_TARGET
@@ -61,10 +61,10 @@ $CMD_MV $DIR_SHARED/libmd5.so $DIR_X86
 $CMD_CP $DIR_SHARED/lib/jna-*.jar $DIR_X86/lib/
 
 # x86 64 bits libraries
-$CMD_MV $DIR_SHARED/libjniwrap64.so $DIR_X86_64
-$CMD_MV $DIR_SHARED/libjtux64.so $DIR_X86_64
-$CMD_MV $DIR_SHARED/libmd564.so $DIR_X86_64
-$CMD_MV -f $DIR_SHARED/lib/jna-*.jar $DIR_X86_64/lib/
+#$CMD_MV $DIR_SHARED/libjniwrap64.so $DIR_X86_64
+#$CMD_MV $DIR_SHARED/libjtux64.so $DIR_X86_64
+#$CMD_MV $DIR_SHARED/libmd564.so $DIR_X86_64
+#$CMD_MV -f $DIR_SHARED/lib/jna-*.jar $DIR_X86_64/lib/
 
 # Change rights
 $CMD_CHMOD +x $DIR_SHARED/crashplan.sh
