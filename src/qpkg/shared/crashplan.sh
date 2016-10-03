@@ -149,7 +149,7 @@ case "$1" in
 
       TIMEZONE="$(/sbin/getcfg System "Time Zone" -f ${NAS_CFG_FILE})"
       QPKG_JAVA_OPTS="-Duser.timezone=${TIMEZONE}"
-      FULL_CP="$QPKG_DIR/lib/com.backup42.desktop.jar:$QPKG_DIR/lang"
+      FULL_CP="$QPKG_DIR/lib/com.backup42.desktop.jar:${QPKG_DIR}/lang"
       # If device is ARM
       if [[ "$(uname -m)" == armv[5-7]* ]]; then
         FULL_CP="${QPKG_DIR}/lib/jna-3.2.7.jar:${FULL_CP}"
@@ -172,7 +172,8 @@ case "$1" in
       if [[ -f "${JRE_QPKG_DIR}/jre/bin/java" ]]; then
         [[ -f "${JRE_QPKG_DIR}/jre/bin/java.patched" ]] && /bin/rm -f "${JRE_QPKG_DIR}/jre/bin/java.patched"
         [[ -d "/tmp/glibc-2.19" ]] && /bin/rm -rf "/tmp/glibc-2.19"
-        if [[ "$(uname -m)" == armv[5-7]* ]] && [[ ! -f "${QPKG_DIR}/workaround/glibc-2.19/lib/libgcc_s.so.1" ]]; then /bin/cp /lib/libgcc_s.so.1 "${QPKG_DIR}/workaround/glibc-2.19/lib/"; fi
+        [[ ! -f "${QPKG_DIR}/workaround/glibc-2.19/lib/libgcc_s.so.1" ]] && /bin/cp /lib/libgcc_s.so.1 "${QPKG_DIR}/workaround/glibc-2.19/lib/"
+        [[ ! -f "${QPKG_DIR}/workaround/glibc-2.19/lib/libstdc++.so.6" ]] && /bin/cp /usr/lib/libstdc++.so.6.0.9 "${QPKG_DIR}/workaround/glibc-2.19/lib/libstdc++.so.6"
         /bin/cp "${QPKG_DIR}/workaround/java.patched" "${JRE_QPKG_DIR}/jre/bin/java.patched"
         /bin/ln -s "${QPKG_DIR}/workaround/glibc-2.19" /tmp/
 	echo "[TEMPORARY] successfully applied workaround for CrashPlan >= 4.5"
