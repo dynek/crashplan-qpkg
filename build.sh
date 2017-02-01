@@ -42,9 +42,9 @@ $CMD_MV $CPIFILE_NAME $DIR_DATA/CrashPlan.cpi
 cd $DIR_DATA && $CMD_CAT ./CrashPlan.cpi | gzip -dc - | cpio -i --no-preserve-owner && cd -
 
 # Create crashplan.cars file
-PATH_TO_JAVA=`which java`
+PATH_TO_JAVA=`command -v java`
 echo "JAVACOMMON=$PATH_TO_JAVA" > $DIR_DATA/crashplan.vars
-$CMD_GREP "SRV_JAVA_OPTS" $DIR_DATA/crashplan-install/scripts/run.conf >> $DIR_DATA/crashplan.vars
+$CMD_GREP "SRV_JAVA_OPTS" $DIR_DATA/[cC]rash[pP]lan*-install/scripts/run.conf >> $DIR_DATA/crashplan.vars
 
 # Clean data folder
 $CMD_RM -rf $DIR_DATA/[cC]rash[pP]lan*-install
