@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Check dependency
+command -v cpio >/dev/null 2>&1 || { echo >&2 "I require cpio but it's not installed. Aborting. You might want to try 'opkg install cpio'."; exit 1; }
+
 CMD_RM="/bin/rm"
 CMD_TAR="/bin/tar"
 CMD_MKDIR="/bin/mkdir"
