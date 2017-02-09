@@ -103,7 +103,7 @@ if(!isset($config['interface']) || (isset($config['interface']) && !array_key_ex
                         CrashPlan's Java memory allocation
                         <select name="memory">
                             <?php for($m = $memStep; $m <= $memTotal; $m += $memStep) { ?>
-                            <option value="<?php echo ($m); ?>"<?php if(isset($config['memory']) && $config['memory'] == $m) { echo " selected"; } ?>><?php echo ($m) ?> Mb<?php if($m == $memDefault) { echo " (default)"; } ?></option>
+                            <option value="<?php echo ($m); ?>"<?php if(isset($config['memory']) && $config['memory'] == $m || !isset($config['memory']) && $memDefault == $m) { echo " selected"; } ?>><?php echo ($m) ?> Mb<?php if($m == $memDefault) { echo " (default)"; } ?></option>
                             <?php } ?>
                         </select>
                     </div>
