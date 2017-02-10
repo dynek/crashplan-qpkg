@@ -15,9 +15,10 @@ HTDOCS_CFG_FILE="${HTDOCS_DIR}/config.conf"
 BACKUP_ARCH_DIR="${QPKG_DIR}/backupArchives"
 
 # TEMPORARY: workaround for >= 4.5 >>>>>>>>>>>>>>>>>>>>
-JRE_QPKG_DIR="$(/sbin/getcfg "JRE" Install_Path -f ${QPKG_CFG_FILE})"
 if [[ "$(uname -m)" == armv[5-7]* ]]; then
   JRE_QPKG_DIR="$(/sbin/getcfg "JRE_ARM" Install_Path -f ${QPKG_CFG_FILE})"
+else
+  JRE_QPKG_DIR="$(/sbin/getcfg "JRE" Install_Path -f ${QPKG_CFG_FILE})"
 fi
 # TEMPORARY: workaround for >= 4.5 <<<<<<<<<<<<<<<<<<<<
 
