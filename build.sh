@@ -42,7 +42,10 @@ $CMD_MV $CPIFILE_NAME $DIR_DATA/CrashPlan.cpi
 cd $DIR_DATA && $CMD_CAT ./CrashPlan.cpi | gzip -dc - | cpio -i --no-preserve-owner && cd -
 
 # Create crashplan.vars file
-PATH_TO_JAVA=`command -v java`
+PATH_TO_JAVA=$(command -v java)
+[ -z "$PATH_TO_JAVA" ] && [ -f /usr/local/jre/bin/java ] && PATH_TO_JAVA='/usr/local/jre/bin/java'
+[ -z "$PATH_TO_JAVA" ] && PATH_TO_JAVA=$(find -L /usr -name 'java' -print -quit)
+[ -z "$PATH_TO_JAVA" ] && { echo 'Path to java can not be found. Aborting.'; exit 1; }
 echo "JAVACOMMON=$PATH_TO_JAVA" > $DIR_DATA/crashplan.vars
 $CMD_GREP "SRV_JAVA_OPTS" $DIR_DATA/[cC]rash[pP]lan*-install/scripts/run.conf >> $DIR_DATA/crashplan.vars
 
