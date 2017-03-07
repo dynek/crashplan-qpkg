@@ -20,7 +20,7 @@ Make sure to read the script to understand what it's doing.
 
 `src/qpkg/x86` contains things related to x86 architecture.
 
-`src/qpkg/arm-x19` and its symlink `src/qpkg/arm-x09` contains libraries related to arm soft-float architecture. `src/qpkg/arm-x31` contains librairies related to arm hard-float architecture. **Note that originally CrashPlan doesn't support arm-based cpu.** This directory is where and how all the magic happens.
+`src/qpkg/arm-x19` and its symlink `src/qpkg/arm-x09` contains libraries related to arm soft-float architecture. `src/qpkg/arm-x31` and its symlink `src/qpkg/arm-x41` contains librairies related to arm hard-float architecture. **Note that originally CrashPlan doesn't support arm-based cpu.** This directory is where and how all the magic happens.
 
 Finally `src/qpkg/shared` contains things shared between architectures.
 
