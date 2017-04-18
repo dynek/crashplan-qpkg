@@ -18,11 +18,9 @@ Make sure to read the script to understand what it's doing.
 
 `src/qpkg/shared/bin/restartLinux.sh` is a script that could be used by CrashPlan service if restart is needed.
 
-`src/qpkg/x86` contains things related to x86 architecture.
+`src/qpkg/x86` contains things related to CrashPlan for x86 architecture.
 
-`src/qpkg/arm-x19` and its symlink `src/qpkg/arm-x09` contains libraries related to arm soft-float architecture. `src/qpkg/arm-x31` and its symlink `src/qpkg/arm-x41` contains librairies related to arm hard-float architecture. **Note that originally CrashPlan doesn't support arm-based cpu.** This directory is where and how all the magic happens.
-
-Finally `src/qpkg/shared` contains things shared between architectures.
+Finally `src/qpkg/shared` contains things not provided by CrashPlan's tgz.
 
 File `src/qpkg/qpkg.cfg` contains information about QPKG. You will most likely want to change `QPKG_VER` (*As a matter of information, ending integer is increased upon each release*).
 

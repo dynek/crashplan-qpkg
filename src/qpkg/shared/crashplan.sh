@@ -13,14 +13,7 @@ MYSERVICE_FILE="${QPKG_DIR}/conf/my.service.xml"
 HTDOCS_DIR="${QPKG_DIR}/htdocs"
 HTDOCS_CFG_FILE="${HTDOCS_DIR}/config.conf"
 BACKUP_ARCH_DIR="${QPKG_DIR}/backupArchives"
-
-# TEMPORARY: workaround for >= 4.5 >>>>>>>>>>>>>>>>>>>>
-if [[ "$(uname -m)" == armv[5-7]* ]]; then
-  JRE_QPKG_DIR="$(/sbin/getcfg "JRE_ARM" Install_Path -f ${QPKG_CFG_FILE})"
-else
-  JRE_QPKG_DIR="$(/sbin/getcfg "JRE" Install_Path -f ${QPKG_CFG_FILE})"
-fi
-# TEMPORARY: workaround for >= 4.5 <<<<<<<<<<<<<<<<<<<<
+JAVACOMMON="$(command -v java)"
 
 case "$1" in
     "start")
@@ -33,7 +26,7 @@ case "$1" in
         /bin/echo "Forcing startup..."
       fi
 
-      # Lock to avoid running service twice (seems there's a bug on ARM when run from web interface)
+      # Lock to avoid running service twice
       if [[ -f "${LOCK_FILE}" ]]; then
         /bin/echo "Lock file exists!"
         exit 1
@@ -59,9 +52,6 @@ case "$1" in
         /bin/echo "Did not find ${CRASHPLAN_VARS_FILE} file."
         exit 1
       fi
-
-      # So CrashPlan can read Java max heap size
-      #[ ! -h $QPKG_DIR/bin/run.conf ] && /bin/ln -sf "${CRASHPLAN_VARS_FILE} $QPKG_DIR/bin/run.conf
 
       # Any upgrade stuff to remove?
       if [[ "$(/bin/ls -1 "${QPKG_DIR}/upgrade" 2>/dev/null)" ]]; then
@@ -123,10 +113,6 @@ case "$1" in
         # Configure port on which service will listen for remote backups
         REMOTE_PORT="$(/bin/grep "<location>.*</location>" "${MYSERVICE_FILE}" | /bin/cut -f2 -d: | /bin/cut -f1 -d'<')"
         /bin/sed -i "s/<location>.*<\/location>/<location>${SYS_IP}:${REMOTE_PORT}<\/location>/" "${MYSERVICE_FILE}"
-
-        # Avoid update / upgrade too quickly
-        #/bin/sed -i 's/<upgradePath>.*<\/upgradePath>/<upgradePath>\/dev\/null<\/upgradePath>/' "${MYSERVICE_FILE}"
-        #/bin/sed -i 's/<upgradeDelay>.*<\/upgradeDelay>/<upgradeDelay>150000000<\/upgradeDelay>/' "${MYSERVICE_FILE}"
       fi
 
       # Symlink identity and increment max_user_watches
@@ -151,11 +137,6 @@ case "$1" in
       TIMEZONE="$(/sbin/getcfg System "Time Zone" -f ${NAS_CFG_FILE})"
       QPKG_JAVA_OPTS="-Duser.timezone=${TIMEZONE}"
       FULL_CP="$QPKG_DIR/lib/com.backup42.desktop.jar:${QPKG_DIR}/lang"
-      # If device is ARM
-      if [[ "$(uname -m)" == armv[5-7]* ]]; then
-        FULL_CP="${QPKG_DIR}/lib/jna-3.2.7.jar:${FULL_CP}"
-        export LD_LIBRARY_PATH="${QPKG_DIR}/lib"
-      fi
 
       # If CrashPlan share exists then symlink it to backupArchives
       CP_SHARE="$(/sbin/getcfg "${QPKG_NAME}" path -f "${SAMBA_CFG_FILE}")"
@@ -169,23 +150,8 @@ case "$1" in
       # Set JAVA tmp directory
       TMP_JAVA_OPTS="-Djava.io.tmpdir=${QPKG_DIR}/tmp"
 
-      # TEMPORARY: workaround for >= 4.5 >>>>>>>>>>>>>>>>>>>>
-      if [[ -f "${JRE_QPKG_DIR}/jre/bin/java" ]]; then
-        [[ -f "${JRE_QPKG_DIR}/jre/bin/java.patched" ]] && /bin/rm -f "${JRE_QPKG_DIR}/jre/bin/java.patched"
-        [[ -d "/tmp/glibc-2.19" ]] && /bin/rm -rf "/tmp/glibc-2.19"
-        [[ ! -f "${QPKG_DIR}/workaround/glibc-2.19/lib/libgcc_s.so.1" ]] && /bin/cp /lib/libgcc_s.so.1 "${QPKG_DIR}/workaround/glibc-2.19/lib/"
-        [[ ! -f "${QPKG_DIR}/workaround/glibc-2.19/lib/libstdc++.so.6" ]] && /bin/cp /usr/lib/libstdc++.so.6.0.9 "${QPKG_DIR}/workaround/glibc-2.19/lib/libstdc++.so.6"
-        /bin/cp "${QPKG_DIR}/workaround/java.patched" "${JRE_QPKG_DIR}/jre/bin/java.patched"
-        /bin/ln -s "${QPKG_DIR}/workaround/glibc-2.19" /tmp/
-	echo "[TEMPORARY] successfully applied workaround for CrashPlan >= 4.5"
-      fi
-      # TEMPORARY: workaround for >= 4.5 <<<<<<<<<<<<<<<<<<<<
-
       cd "${QPKG_DIR}"
-      # TEMPORARY: workaround for >= 4.5 >>>>>>>>>>>>>>>>>>>>
-      #${JAVACOMMON} ${SRV_JAVA_OPTS} ${QPKG_JAVA_OPTS} ${TMP_JAVA_OPTS} -classpath ${FULL_CP} com.backup42.service.CPService >"${QPKG_DIR}/log/engine_output.log" 2>"${QPKG_DIR}/log/engine_error.log" &
-      /usr/local/jre/bin/java.patched ${SRV_JAVA_OPTS} ${QPKG_JAVA_OPTS} ${TMP_JAVA_OPTS} -classpath ${FULL_CP} com.backup42.service.CPService >"${QPKG_DIR}/log/engine_output.log" 2>"${QPKG_DIR}/log/engine_error.log" &
-      # TEMPORARY: workaround for >= 4.5 <<<<<<<<<<<<<<<<<<<<
+      ${JAVACOMMON} ${SRV_JAVA_OPTS} ${QPKG_JAVA_OPTS} ${TMP_JAVA_OPTS} -classpath ${FULL_CP} com.backup42.service.CPService >"${QPKG_DIR}/log/engine_output.log" 2>"${QPKG_DIR}/log/engine_error.log" &
       if [[ $! -gt 0 ]]; then
         /bin/echo $! > "${PID_FILE}"
 

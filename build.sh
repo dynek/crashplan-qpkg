@@ -25,7 +25,6 @@ DIR_QPKG=$DIR_TARGET/qpkg
 DIR_DATA=$DIR_TARGET/data
 DIR_SHARED=$DIR_QPKG/shared
 DIR_X86=$DIR_QPKG/x86
-#DIR_X86_64=$DIR_QPKG/x86_64
 
 # Create target folders
 $CMD_RM -rf $DIR_TARGET
@@ -42,11 +41,6 @@ $CMD_MV $CPIFILE_NAME $DIR_DATA/CrashPlan.cpi
 cd $DIR_DATA && $CMD_CAT ./CrashPlan.cpi | gzip -dc - | cpio -i --no-preserve-owner && cd -
 
 # Create crashplan.vars file
-PATH_TO_JAVA=$(command -v java)
-[ -z "$PATH_TO_JAVA" ] && [ -f /usr/local/jre/bin/java ] && PATH_TO_JAVA='/usr/local/jre/bin/java'
-[ -z "$PATH_TO_JAVA" ] && PATH_TO_JAVA=$(find -L /usr -name 'java' -print -quit)
-[ -z "$PATH_TO_JAVA" ] && { echo 'Path to java can not be found. Aborting.'; exit 1; }
-echo "JAVACOMMON=$PATH_TO_JAVA" > $DIR_DATA/crashplan.vars
 $CMD_GREP "SRV_JAVA_OPTS" $DIR_DATA/[cC]rash[pP]lan*-install/scripts/run.conf >> $DIR_DATA/crashplan.vars
 
 # Clean data folder
@@ -57,20 +51,13 @@ $CMD_RM -rf $DIR_DATA/upgrade
 $CMD_RM -rf $DIR_DATA/doc
 $CMD_RM -rf $DIR_DATA/skin
 
-# Move all to shared
-$CMD_MV $DIR_DATA/* $DIR_SHARED
+# Move CrashPlan files
+$CMD_MKDIR -p $DIR_X86
+$CMD_MV $DIR_DATA/* $DIR_X86
 $CMD_FIND $DIR_SHARED -name .gitignore | $CMD_XARGS $CMD_RM
 
-# x86 libraries
-$CMD_MV $DIR_SHARED/libjtux.so $DIR_X86
-$CMD_MV $DIR_SHARED/libmd5.so $DIR_X86
-$CMD_CP $DIR_SHARED/lib/jna-*.jar $DIR_X86/lib/
-
-# x86 64 bits libraries
-#$CMD_MV $DIR_SHARED/libjniwrap64.so $DIR_X86_64
-#$CMD_MV $DIR_SHARED/libjtux64.so $DIR_X86_64
-#$CMD_MV $DIR_SHARED/libmd564.so $DIR_X86_64
-#$CMD_MV -f $DIR_SHARED/lib/jna-*.jar $DIR_X86_64/lib/
+# remove unused libraries
+$CMD_LS -1 $DIR_X86 | $CMD_GREP -i "so" | $CMD_GREP -iv "64.so" | $CMD_XARGS -I% $CMD_RM "${DIR_X86}/%"
 
 # Change rights
 $CMD_CHMOD +x $DIR_SHARED/crashplan.sh
