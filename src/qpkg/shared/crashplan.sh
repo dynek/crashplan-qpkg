@@ -13,7 +13,7 @@ MYSERVICE_FILE="${QPKG_DIR}/conf/my.service.xml"
 HTDOCS_DIR="${QPKG_DIR}/htdocs"
 HTDOCS_CFG_FILE="${HTDOCS_DIR}/config.conf"
 BACKUP_ARCH_DIR="${QPKG_DIR}/backupArchives"
-JAVACOMMON="$(command -v java)"
+JAVACOMMON="/usr/local/jre/bin/java"
 
 case "$1" in
     "start")
