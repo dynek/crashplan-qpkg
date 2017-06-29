@@ -1,46 +1,52 @@
+.fleft { float: left; }
 body {
-	background-color: #598D1C;
-	color: #FFFFFF;
-	font-family: Arial;
-	font-size: 8pt;
+  background-color: #D3D3D3;
+  color: #000000;
+  font-family: 'QTS Font','Helvetica','Arial','Sans-serif','Verdana','Tahoma';
+  font-size: 13px;
 }
-a {
-	color: #FFFFFF;
-	text-decoration: none;
+h1, a {
+  color: #619200;
+  text-decoration: none;
+}
+div#logo {
+  width: 100%;
+  height: 69px;
+  background-image: url('images/crashplan.png');
+  background-repeat: no-repeat;
+  border-bottom: 2px solid #7AB700;
+  padding-bottom: 15px;
+  margin-top: 15px;
 }
 div#main {
-	width: 530px;
-	height: 321px;
-	background-image:url('images/main.jpg');
-	margin-left: auto;
-	margin-right: auto;
-	margin-top: 100px;
-	border: 1px solid #094713;
+  margin-left: 9px;
 }
 img {
-	border: 0;
-	vertical-align: middle;
-	margin-right: 5px;
+  border: 0;
 }
-select {
-	margin-left: 2px;
+div.section {
+  margin-top: 25px;
 }
-div#top {
-	padding-top: 18px;
-	padding-left: 160px;
+div.item {
+  clear: both;
 }
-div.topSpace {
-	padding-top: 9px;
+div.item img {
+  margin-right: 10px;
 }
-div#bottomLeft {
-	margin-top: 150px;
-	padding-left: 10px;
-	width: 330px;
-	float: left;
+div.item h1 {
+  padding-top: 5px;
 }
-div#bottomRight {
-	margin-top: 200px;
-	margin-left: 10px;
-	width: 180px;
-	float: left;
+div.separation {
+  border-top: 2px solid #7AB700;
+  padding-top: 25px;
+}
+input[type="submit"]{
+  border: 1px solid #7AB700;
+  padding: 10px 25px;
+  background-color: #FFFFFF;
+  font-size: 14px;
+}
+span#warning {
+  margin-left: 30px;
+  color: #B33A3A;
 }

@@ -1,6 +1,0 @@
-AuthName "CrashPlan: Admin Restricted Area"
-AuthType Basic
-AuthUserFile /mnt/HDA_ROOT/.config/shadow
-<limit GET POST>
-require user admin
-</Limit>

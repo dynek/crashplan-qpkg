@@ -14,6 +14,8 @@ HTDOCS_DIR="${QPKG_DIR}/htdocs"
 HTDOCS_CFG_FILE="${HTDOCS_DIR}/config.conf"
 BACKUP_ARCH_DIR="${QPKG_DIR}/backupArchives"
 JAVACOMMON="/usr/local/jre/bin/java"
+APACHE_CONF_FILE="/etc/default_config/apache-crashplan.conf"
+APACHE_PROXY_FILES="/etc/apache-sys-proxy.conf /etc/apache-sys-proxy-ssl.conf"
 
 case "$1" in
     "start")
@@ -121,6 +123,44 @@ case "$1" in
       /bin/chmod o+r $QPKG_DIR/var
       /bin/echo 1048576 > /proc/sys/fs/inotify/max_user_watches
 
+      # CrashPlan web interface
+      /bin/chown -R httpdusr:administrators "${HTDOCS_DIR}"
+      /bin/chmod 440 "${HTDOCS_DIR}/"* "${HTDOCS_DIR}/images/"*
+      /bin/chmod 550 "${HTDOCS_DIR}" "${HTDOCS_DIR}/images"
+      /bin/chmod 660 "${HTDOCS_DIR}/config.conf"
+
+      # Remove old symlink
+      [[ -L "${WEB_SHARE}" ]] && rm -f "${WEB_SHARE}"
+
+      # If not there, create http configuration
+      if [[ ! -f "${APACHE_CONF_FILE}" ]]; then
+        echo "Missing CrashPlan Apache configuration file - creating it"
+        cat <<-EOF >"${APACHE_CONF_FILE}"
+	<IfModule alias_module>
+	  Alias /crashplan "${HTDOCS_DIR}"
+	  <Directory "${HTDOCS_DIR}">
+	    Require all granted
+	  </Directory>
+	  ProxyPass /crashplan !
+	  ProxyPass /php.mod_fastcgi/crashplan !
+	</IfModule>
+	EOF
+
+        # add crashplan apache conf into main conf
+        for file in ${APACHE_PROXY_FILES}; do
+	  if ! /bin/grep -i "${APACHE_CONF_FILE}" "${file}"; then
+	    echo "Include ${APACHE_CONF_FILE}" >> "${file}"
+	  fi
+
+          # reload apache conf
+	  if [[ "${file}" == *"ssl"* ]]; then
+            /usr/local/apache/bin/apache_proxys -k graceful -f "${file}" >/dev/null 2>&1
+	  else
+            /usr/local/apache/bin/apache_proxy -k graceful -f "${file}" >/dev/null 2>&1
+	  fi
+	done
+      fi
+
       if [[ "${LC_ALL}" ]]; then
         LOCALE="$(/bin/sed 's/\..*//g' <<< ${LC_ALL})"
         export LC_ALL="${LOCALE}.UTF-8"
@@ -154,15 +194,6 @@ case "$1" in
       ${JAVACOMMON} ${SRV_JAVA_OPTS} ${QPKG_JAVA_OPTS} ${TMP_JAVA_OPTS} -classpath ${FULL_CP} com.backup42.service.CPService >"${QPKG_DIR}/log/engine_output.log" 2>"${QPKG_DIR}/log/engine_error.log" &
       if [[ $! -gt 0 ]]; then
         /bin/echo $! > "${PID_FILE}"
-
-        # Create symlink to CrashPlan web interface
-        /bin/chown -R httpdusr:administrators "${HTDOCS_DIR}"
-        /bin/chmod -R u+rwx,g-rwx,o-rwx "${HTDOCS_DIR}"
-        # If this isn't set then web interface says: Forbidden
-        /bin/chmod o+x "${QPKG_DIR}"
-        # Create symlink
-        [[ ! -d "${WEB_SHARE}" ]] && /bin/ln -sf "${HTDOCS_DIR}" "${WEB_SHARE}"
-
         exit 0
       else
         exit 1
