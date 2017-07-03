@@ -145,21 +145,24 @@ case "$1" in
 	  ProxyPass /php.mod_fastcgi/crashplan !
 	</IfModule>
 	EOF
-
-        # add crashplan apache conf into main conf
-        for file in ${APACHE_PROXY_FILES}; do
-	  if ! /bin/grep -i "${APACHE_CONF_FILE}" "${file}"; then
-	    echo "Include ${APACHE_CONF_FILE}" >> "${file}"
-	  fi
-
-          # reload apache conf
-	  if [[ "${file}" == *"ssl"* ]]; then
-            /usr/local/apache/bin/apache_proxys -k graceful -f "${file}" >/dev/null 2>&1
-	  else
-            /usr/local/apache/bin/apache_proxy -k graceful -f "${file}" >/dev/null 2>&1
-	  fi
-	done
       fi
+
+      # add crashplan apache conf into main conf
+      for file in ${APACHE_PROXY_FILES}; do
+        # fix bug in previous version
+	/bin/sed -i 's/<\/VirtualHost>\s*Include \/etc\/default_config\/apache-crashplan.conf/<\/VirtualHost>/' "${file}"
+
+        if ! /bin/grep -i "${APACHE_CONF_FILE}" "${file}" >/dev/null 2>&1; then
+          echo -e "\nInclude ${APACHE_CONF_FILE}" >> "${file}"
+        fi
+
+        # reload apache conf
+        if [[ "${file}" == *"ssl"* ]]; then
+          /usr/local/apache/bin/apache_proxys -k graceful -f "${file}" >/dev/null 2>&1
+        else
+          /usr/local/apache/bin/apache_proxy -k graceful -f "${file}" >/dev/null 2>&1
+        fi
+      done
 
       if [[ "${LC_ALL}" ]]; then
         LOCALE="$(/bin/sed 's/\..*//g' <<< ${LC_ALL})"
