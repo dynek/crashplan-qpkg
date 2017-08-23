@@ -1,15 +1,15 @@
 Description
 ===========
 
-CrashPlan is backup software that allows Windows, Mac, Linux and Solaris users to back up their data to an offsite data center, computers belonging to friends and family, as well as to attached drives /shared folders. There is a free version (for personal use only) and CrashPlan+ which is for both personal and business use. Both versions allow users to back up data automatically. Files are encrypted using 448-bit Blowfish encryption for CrashPlan+ and 128-bit encryption for the personal CrashPlan before transmission.
+CrashPlan for Small Business is backup software that allows Windows, Mac and Linux users to back up their data to an offsite data center as well as to attached drives / shared folders. Files are encrypted using AES-256 encryption before transmission. Backup transmission is then scrambled using 128-bit encryption.
 
-This it the sources to create a QPKG installable on a QNAP device (x86/arm based).
+This it the sources to create a QPKG installable on an x86 64-bits QNAP device (QTS >= 4.3).
 
 Building QPKG
 =============
 Script `build.sh` can be used to build the QPKG.
 The script is pretty ugly and uncommented, feel free to improve!
-It only takes one parameter which is the _Linux.tgz file fetched from CrashPlan directly.
+It only takes one parameter which is the CrashPlan tgz file.
 Make sure to read the script to understand what it's doing.
 
 `src/qpkg/shared/crashplan.sh` is the init script that will be copied inside QPKG to start/stop/restart CrashPlan service.

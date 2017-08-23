@@ -12,7 +12,7 @@ CRASHPLAN_VARS_FILE="${QPKG_DIR}/crashplan.vars"
 MYSERVICE_FILE="${QPKG_DIR}/conf/my.service.xml"
 HTDOCS_DIR="${QPKG_DIR}/htdocs"
 HTDOCS_CFG_FILE="${HTDOCS_DIR}/config.conf"
-BACKUP_ARCH_DIR="${QPKG_DIR}/backupArchives"
+BACKUP_ARCH_DIR="${QPKG_DIR}/backupArchives" # (to be removed in a few releases)
 JAVACOMMON="/usr/local/jre/bin/java"
 APACHE_CONF_FILE="/etc/default_config/apache-crashplan.conf"
 APACHE_PROXY_FILES="/etc/apache-sys-proxy.conf /etc/apache-sys-proxy-ssl.conf"
@@ -181,15 +181,6 @@ case "$1" in
       QPKG_JAVA_OPTS="-Duser.timezone=${TIMEZONE}"
       FULL_CP="$QPKG_DIR/lib/com.backup42.desktop.jar:${QPKG_DIR}/lang"
 
-      # If CrashPlan share exists then symlink it to backupArchives
-      CP_SHARE="$(/sbin/getcfg "${QPKG_NAME}" path -f "${SAMBA_CFG_FILE}")"
-      if [[ "${CP_SHARE}" ]]; then
-        [[ -d "${BACKUP_ARCH_DIR}" ]] && /bin/rm -rf "${BACKUP_ARCH_DIR}"
-        /bin/ln -sf "${CP_SHARE}" "${BACKUP_ARCH_DIR}"
-      else
-        [[ -d "${BACKUP_ARCH_DIR}" ]] || /bin/mkdir "${BACKUP_ARCH_DIR}"
-      fi
-
       # Set JAVA tmp directory
       TMP_JAVA_OPTS="-Djava.io.tmpdir=${QPKG_DIR}/tmp"
 
@@ -216,7 +207,7 @@ case "$1" in
         exit 1
       fi
 
-      # Remove backupArchives directory if symbolic link
+      # Remove backupArchives directory if symbolic link (to be removed in a few releases)
       [[ -h "${BACKUP_ARCH_DIR}" ]] && /bin/rm -f "${BACKUP_ARCH_DIR}"
 
       # Remove symlink to CrashPlan web interface
