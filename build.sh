@@ -48,6 +48,7 @@ $CMD_GREP "SRV_JAVA_OPTS" $DIR_DATA/[cC]rash[pP]lan*-install/scripts/run.conf >>
 $CMD_RM -rf $DIR_DATA/[cC]rash[pP]lan*-install
 $CMD_RM -f $DIR_DATA/CrashPlan.cpi
 $CMD_RM -rf $DIR_DATA/bin
+$CMD_RM -rf $DIR_DATA/electron
 $CMD_RM -rf $DIR_DATA/upgrade
 $CMD_RM -rf $DIR_DATA/doc
 $CMD_RM -rf $DIR_DATA/skin
@@ -58,7 +59,7 @@ $CMD_MV $DIR_DATA/* $DIR_X86
 $CMD_FIND $DIR_SHARED -name .gitignore | $CMD_XARGS $CMD_RM
 
 # remove unused libraries
-$CMD_LS -1 $DIR_X86 | $CMD_GREP -i "so" | $CMD_GREP -iv "64.so" | $CMD_XARGS -I% $CMD_RM "${DIR_X86}/%"
+#$CMD_LS -1 $DIR_X86 | $CMD_GREP -i "so" | $CMD_GREP -iv "64.so" | $CMD_XARGS -I% $CMD_RM "${DIR_X86}/%"
 
 # Change rights
 $CMD_CHMOD +x $DIR_SHARED/crashplan.sh
