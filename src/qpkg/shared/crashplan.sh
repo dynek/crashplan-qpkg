@@ -101,10 +101,6 @@ case "$1" in
         /bin/echo " (${SYS_IP}) - This can be changed in the web interface"
         /bin/sed -ri "s/<serviceHost(\s*\/)?>.*/<serviceHost>${SYS_IP}<\/serviceHost>/" "${MYSERVICE_FILE}"
 
-	# Configure network stack to redirect traffic to localhost (could not find a better way)
-	iptables -t nat -I PREROUTING -i "${SYS_INTERFACE}" -p tcp --dport 4244 -j DNAT --to-destination 127.0.0.1:4244
-	sysctl -w "net.ipv4.conf.${SYS_INTERFACE}.route_localnet=1"
-
         # If no memory information has been found in config file
         if [[ -z "${SYS_MEMORY}" ]]; then
           SYS_MEMORY="512"
@@ -192,6 +188,28 @@ case "$1" in
       ${JAVACOMMON} ${SRV_JAVA_OPTS} ${QPKG_JAVA_OPTS} ${TMP_JAVA_OPTS} -classpath ${FULL_CP} com.backup42.service.CPService >"${QPKG_DIR}/log/engine_output.log" 2>"${QPKG_DIR}/log/engine_error.log" &
       if [[ $! -gt 0 ]]; then
         /bin/echo $! > "${PID_FILE}"
+
+
+	# Configure network stack to redirect traffic to localhost (could not find a better way)
+        if [[ ! -z "${SYS_INTERFACE}" ]]; then
+	  sysctl -w "net.ipv4.conf.${SYS_INTERFACE}.route_localnet=1" >/dev/null
+	  [[ -f "${QPKG_DIR}/log/service.log.0" ]] && mv -f "${QPKG_DIR}/log/service.log.0" "${QPKG_DIR}/log/service.log.0.bak"
+          echo -n "waiting for service.log.0 creation to fetch listening port";
+	  cnt=0
+          while ! grep "Interface LISTENING on" "${QPKG_DIR}/log/service.log.0" >/dev/null 2>&1; do
+	    if (( cnt == 90 )); then
+	      echo "timed out"
+	      exit 1
+	    fi
+	    echo -n "."
+            sleep 1
+	    (( cnt++ ))
+          done
+          PORT="$(grep -i "Interface LISTENING on" "${QPKG_DIR}/log/service.log.0" | sed -r 's/.*(\w{4})$/\1/')"
+	  echo -e "\nListening port will be ${PORT}"
+	  iptables -t nat -I PREROUTING -i "${SYS_INTERFACE}" -p tcp --dport "${PORT}" -j DNAT --to-destination "127.0.0.1:${PORT}"
+	fi
+
         exit 0
       else
         exit 1
@@ -219,7 +237,7 @@ case "$1" in
 
       # Remove network stack config to redirect traffic to localhost (could not find a better way)
       sysctl -a | grep -i "route_localnet = 1" | cut -f1 -d' ' | xargs -I% sysctl -w %=0 >/dev/null 2>&1
-      iptables -t nat -L PREROUTING --line-numbers | grep "127.0.0.1:4244" | cut -f1 -d' ' | xargs -I% iptables -t nat -D PREROUTING %
+      iptables -t nat -L PREROUTING --line-numbers | grep "DNAT.*tcp.*127.0.0.1:42" | cut -f1 -d' ' | sort -rn | xargs -I% iptables -t nat -D PREROUTING %
 
       exit 0
       ;;
